@@ -77,7 +77,7 @@ function stopShape() {
     const overlapRight = Math.min(shapeRect.right, greenZoneRect.right);
     const overlapWidth = Math.max(0, overlapRight - overlapLeft);
 
-    if (overlapWidth >= 0.5 * shapeWidth) {
+    if (overlapWidth >= 0.5 * shapeWidth) { // Check if at least 50% of the shape is within the green zone
         score++;
         scoreDisplay.textContent = `Score: ${score}`;
         updateZoneAndShape();
