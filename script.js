@@ -94,7 +94,7 @@ function resetShape() {
 
     // Determine if the next movement should be diagonal
     if (score > 20) {
-        nextDiagonal = Math.random() < 0.2; // 50% chance to be diagonal
+        nextDiagonal = Math.random() < 0.05; // 5% chance to be diagonal
     } else {
         nextDiagonal = false;
     }
