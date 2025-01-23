@@ -14,6 +14,7 @@ let shapePositionY = 0;
 let interval;
 let gameStarted = false;
 let shapeSpeed = 2;
+let diagonalMovement = false;
 
 // Start the movement of the shape
 function startGame() {
@@ -40,15 +41,23 @@ function moveShape() {
     }
 
     if (score > 20) {
-        if (movingDown) {
-            shapePositionY += shapeSpeed;
-            if (shapePositionY + shapeHeight >= containerHeight) {
-                movingDown = false;
-            }
+        if (Math.random() < 0.5) { // Randomly decide whether to move diagonally
+            diagonalMovement = true;
         } else {
-            shapePositionY -= shapeSpeed;
-            if (shapePositionY <= 0) {
-                movingDown = true;
+            diagonalMovement = false;
+        }
+
+        if (diagonalMovement) {
+            if (movingDown) {
+                shapePositionY += shapeSpeed;
+                if (shapePositionY + shapeHeight >= containerHeight) {
+                    movingDown = false;
+                }
+            } else {
+                shapePositionY -= shapeSpeed;
+                if (shapePositionY <= 0) {
+                    movingDown = true;
+                }
             }
         }
     }
@@ -68,7 +77,7 @@ function stopShape() {
     const overlapRight = Math.min(shapeRect.right, greenZoneRect.right);
     const overlapWidth = Math.max(0, overlapRight - overlapLeft);
 
-    if (overlapWidth >= 0.6 * shapeWidth) {
+    if (overlapWidth >= 0.5 * shapeWidth) {
         score++;
         scoreDisplay.textContent = `Score: ${score}`;
         updateZoneAndShape();
