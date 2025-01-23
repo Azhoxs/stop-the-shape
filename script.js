@@ -15,6 +15,7 @@ let interval;
 let gameStarted = false;
 let shapeSpeed = 2;
 let diagonalMovement = false;
+let nextDiagonal = false; // Variable to track if the next movement should be diagonal
 
 // Start the movement of the shape
 function startGame() {
@@ -40,24 +41,16 @@ function moveShape() {
         }
     }
 
-    if (score > 20) {
-        if (Math.random() < 0.5) { // Randomly decide whether to move diagonally
-            diagonalMovement = true;
+    if (score > 20 && nextDiagonal) {
+        if (movingDown) {
+            shapePositionY += shapeSpeed;
+            if (shapePositionY + shapeHeight >= containerHeight) {
+                movingDown = false;
+            }
         } else {
-            diagonalMovement = false;
-        }
-
-        if (diagonalMovement) {
-            if (movingDown) {
-                shapePositionY += shapeSpeed;
-                if (shapePositionY + shapeHeight >= containerHeight) {
-                    movingDown = false;
-                }
-            } else {
-                shapePositionY -= shapeSpeed;
-                if (shapePositionY <= 0) {
-                    movingDown = true;
-                }
+            shapePositionY -= shapeSpeed;
+            if (shapePositionY <= 0) {
+                movingDown = true;
             }
         }
     }
@@ -98,6 +91,14 @@ function resetShape() {
     shapePositionX = movingRight ? 0 : gameContainer.offsetWidth - shape.offsetWidth;
     shapePositionY = Math.random() * (gameContainer.offsetHeight - shape.offsetHeight); // Randomize vertical position
     shapeSpeed = 2 + score * 0.5; // Increase speed with score
+
+    // Determine if the next movement should be diagonal
+    if (score > 20) {
+        nextDiagonal = Math.random() < 0.5; // 50% chance to be diagonal
+    } else {
+        nextDiagonal = false;
+    }
+
     if (gameStarted) {
         startGame();
     }
