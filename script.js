@@ -3,26 +3,17 @@ const greenZone = document.querySelector('.green-zone');
 const scoreDisplay = document.getElementById('score');
 const bestRecordDisplay = document.getElementById('best-record');
 const gameContainer = document.getElementById('game-container');
-const topScoresList = document.getElementById('top-scores-list');
 
 let score = 0;
 let bestRecord = localStorage.getItem('bestRecord') || 0;
+bestRecordDisplay.textContent = `Record: ${bestRecord}`;
 let movingRight = true;
-let shapePosition = 0;
+let movingDown = true;
+let shapePositionX = 0;
+let shapePositionY = 0;
 let interval;
 let gameStarted = false;
 let shapeSpeed = 2;
-
-let bestScores = JSON.parse(localStorage.getItem('bestScores')) || [];
-
-// Afficher les meilleurs scores
-function displayBestScores() {
-    bestScores.sort((a, b) => b.score - a.score);
-    bestScores = bestScores.slice(0, 3); // Garder seulement les 3 meilleurs scores
-    topScoresList.innerHTML = bestScores.map((entry, index) => `${index + 1}. ${entry.name}: ${entry.score}`).join('<br>');
-}
-
-displayBestScores();
 
 // Start the movement of the shape
 function startGame() {
@@ -32,21 +23,38 @@ function startGame() {
 // Move the shape back and forth
 function moveShape() {
     const containerWidth = gameContainer.offsetWidth;
+    const containerHeight = gameContainer.offsetHeight;
     const shapeWidth = shape.offsetWidth;
+    const shapeHeight = shape.offsetHeight;
 
     if (movingRight) {
-        shapePosition += shapeSpeed;
-        if (shapePosition + shapeWidth >= containerWidth) {
+        shapePositionX += shapeSpeed;
+        if (shapePositionX + shapeWidth >= containerWidth) {
             movingRight = false;
         }
     } else {
-        shapePosition -= shapeSpeed;
-        if (shapePosition <= 0) {
+        shapePositionX -= shapeSpeed;
+        if (shapePositionX <= 0) {
             movingRight = true;
         }
     }
 
-    shape.style.left = shapePosition + 'px';
+    if (score > 20) {
+        if (movingDown) {
+            shapePositionY += shapeSpeed;
+            if (shapePositionY + shapeHeight >= containerHeight) {
+                movingDown = false;
+            }
+        } else {
+            shapePositionY -= shapeSpeed;
+            if (shapePositionY <= 0) {
+                movingDown = true;
+            }
+        }
+    }
+
+    shape.style.left = shapePositionX + 'px';
+    shape.style.top = shapePositionY + 'px';
 }
 
 // Stop the shape and check if it's within the green zone
@@ -71,14 +79,6 @@ function stopShape() {
             localStorage.setItem('bestRecord', bestRecord);
             bestRecordDisplay.textContent = `Record: ${bestRecord}`;
         }
-        if (score > (bestScores[2]?.score || 0)) {
-            const playerName = prompt('Nouveau record ! Entrez votre pseudo :');
-            bestScores.push({ name: playerName, score: score });
-            bestScores.sort((a, b) => b.score - a.score);
-            bestScores = bestScores.slice(0, 3); // Garder seulement les 3 meilleurs scores
-            localStorage.setItem('bestScores', JSON.stringify(bestScores));
-            displayBestScores();
-        }
         alert(`Game Over! Your score: ${score}`);
         window.location.reload();
     }
@@ -86,7 +86,8 @@ function stopShape() {
 
 // Reset the shape position and start moving again
 function resetShape() {
-    shapePosition = movingRight ? 0 : gameContainer.offsetWidth - shape.offsetWidth;
+    shapePositionX = movingRight ? 0 : gameContainer.offsetWidth - shape.offsetWidth;
+    shapePositionY = movingDown ? 0 : gameContainer.offsetHeight - shape.offsetHeight;
     shapeSpeed = 2 + score * 0.5; // Increase speed with score
     if (gameStarted) {
         startGame();
