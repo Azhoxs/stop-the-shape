@@ -3,6 +3,7 @@ const greenZone = document.querySelector('.green-zone');
 const scoreDisplay = document.getElementById('score');
 const bestRecordDisplay = document.getElementById('best-record');
 const gameContainer = document.getElementById('game-container');
+const topScoresList = document.getElementById('top-scores-list');
 
 let score = 0;
 let bestRecord = localStorage.getItem('bestRecord') || 0;
@@ -12,7 +13,16 @@ let interval;
 let gameStarted = false;
 let shapeSpeed = 2;
 
-bestRecordDisplay.textContent = `Record: ${bestRecord}`;
+let bestScores = JSON.parse(localStorage.getItem('bestScores')) || [];
+
+// Afficher les meilleurs scores
+function displayBestScores() {
+    bestScores.sort((a, b) => b.score - a.score);
+    bestScores = bestScores.slice(0, 3); // Garder seulement les 3 meilleurs scores
+    topScoresList.innerHTML = bestScores.map((entry, index) => `${index + 1}. ${entry.name}: ${entry.score}`).join('<br>');
+}
+
+displayBestScores();
 
 // Start the movement of the shape
 function startGame() {
@@ -45,10 +55,12 @@ function stopShape() {
     const shapeRect = shape.getBoundingClientRect();
     const greenZoneRect = greenZone.getBoundingClientRect();
 
-    if (
-        shapeRect.right > greenZoneRect.left &&
-        shapeRect.left < greenZoneRect.right
-    ) {
+    const shapeWidth = shapeRect.width;
+    const overlapLeft = Math.max(shapeRect.left, greenZoneRect.left);
+    const overlapRight = Math.min(shapeRect.right, greenZoneRect.right);
+    const overlapWidth = Math.max(0, overlapRight - overlapLeft);
+
+    if (overlapWidth >= 0.6 * shapeWidth) {
         score++;
         scoreDisplay.textContent = `Score: ${score}`;
         updateZoneAndShape();
@@ -58,6 +70,14 @@ function stopShape() {
             bestRecord = score;
             localStorage.setItem('bestRecord', bestRecord);
             bestRecordDisplay.textContent = `Record: ${bestRecord}`;
+        }
+        if (score > (bestScores[2]?.score || 0)) {
+            const playerName = prompt('Nouveau record ! Entrez votre pseudo :');
+            bestScores.push({ name: playerName, score: score });
+            bestScores.sort((a, b) => b.score - a.score);
+            bestScores = bestScores.slice(0, 3); // Garder seulement les 3 meilleurs scores
+            localStorage.setItem('bestScores', JSON.stringify(bestScores));
+            displayBestScores();
         }
         alert(`Game Over! Your score: ${score}`);
         window.location.reload();
@@ -101,10 +121,9 @@ function updateZoneAndShape() {
     shape.style.height = `${Math.max(shapeHeight, 10)}px`;
     shape.style.top = `${shapeTop}px`;
 
-    if (shapeType < 0.33) {
+    // Remove circle shapes
+    if (shapeType < 0.5) {
         shape.style.borderRadius = '0'; // Square or rectangle
-    } else if (shapeType < 0.66) {
-        shape.style.borderRadius = '50%'; // Circle
     } else {
         shape.style.borderRadius = '0'; // Rectangle
         shape.style.width = `${Math.max(shapeSize * 2, 20)}px`; // Ensure minimum width of 20px
