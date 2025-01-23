@@ -55,20 +55,3 @@ body {
 #best-record {
     top: -80px;
 }
-
-#top-scores {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    color: white;
-    text-align: right;
-}
-
-#top-scores h2 {
-    margin: 0;
-    font-size: 24px;
-}
-
-#top-scores-list {
-    font-size: 18px;
-}

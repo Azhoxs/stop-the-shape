@@ -87,7 +87,7 @@ function stopShape() {
 // Reset the shape position and start moving again
 function resetShape() {
     shapePositionX = movingRight ? 0 : gameContainer.offsetWidth - shape.offsetWidth;
-    shapePositionY = movingDown ? 0 : gameContainer.offsetHeight - shape.offsetHeight;
+    shapePositionY = Math.random() * (gameContainer.offsetHeight - shape.offsetHeight); // Randomize vertical position
     shapeSpeed = 2 + score * 0.5; // Increase speed with score
     if (gameStarted) {
         startGame();
@@ -134,9 +134,20 @@ function updateZoneAndShape() {
     movingRight = Math.random() < 0.5;
 }
 
-// Listen for spacebar press
+// Listen for spacebar press and left click
 window.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
+        if (!gameStarted) {
+            gameStarted = true;
+            startGame();
+        } else {
+            stopShape();
+        }
+    }
+});
+
+window.addEventListener('click', (e) => {
+    if (e.button === 0) { // Left click
         if (!gameStarted) {
             gameStarted = true;
             startGame();
