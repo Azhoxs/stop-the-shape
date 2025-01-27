@@ -62,6 +62,7 @@ function moveShape() {
 // Stop the shape and check if it's within the green zone
 function stopShape() {
     clearInterval(interval);
+    updateShapePosition();
     const shapeRect = shape.getBoundingClientRect();
     const greenZoneRect = greenZone.getBoundingClientRect();
 
@@ -70,7 +71,7 @@ function stopShape() {
     const overlapRight = Math.min(shapeRect.right, greenZoneRect.right);
     const overlapWidth = Math.max(0, overlapRight - overlapLeft);
 
-    if (overlapWidth >= 0.5 * shapeWidth) { // Check if at least 50% of the shape is within the green zone
+    if (overlapWidth >= 0.1 * shapeWidth) { // Check if at least 10% of the shape is within the green zone
         score++;
         scoreDisplay.textContent = `Score: ${score}`;
         updateZoneAndShape();
@@ -86,6 +87,12 @@ function stopShape() {
     }
 }
 
+// Update the shape position immediately
+function updateShapePosition() {
+    shape.style.left = shapePositionX + 'px';
+    shape.style.top = shapePositionY + 'px';
+}
+
 // Reset the shape position and start moving again
 function resetShape() {
     shapePositionX = movingRight ? 0 : gameContainer.offsetWidth - shape.offsetWidth;
@@ -94,7 +101,7 @@ function resetShape() {
 
     // Determine if the next movement should be diagonal
     if (score > 20) {
-        nextDiagonal = Math.random() < 0.15; // 15% chance to be diagonal
+        nextDiagonal = Math.random() < 0.2; // 20% chance to be diagonal
     } else {
         nextDiagonal = false;
     }
